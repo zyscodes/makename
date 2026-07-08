@@ -1,0 +1,1270 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>宝宝起名小帮手</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8f5;
+      --surface: #ffffff;
+      --surface-soft: #f0f5f2;
+      --text: #1d2a25;
+      --muted: #63726b;
+      --line: #dfe7e2;
+      --primary: #167f70;
+      --primary-dark: #0f665a;
+      --accent: #c76a45;
+      --danger: #b43c48;
+      --shadow: 0 18px 42px rgba(36, 54, 47, 0.1);
+      --radius: 8px;
+      --metal: #9a7a1c;
+      --wood: #327a48;
+      --water: #27728d;
+      --fire: #b85035;
+      --earth: #7b6146;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .app {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 8px 0 18px;
+    }
+
+    .brand-kicker {
+      margin: 0 0 6px;
+      color: var(--primary);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      line-height: 1.08;
+      font-weight: 800;
+    }
+
+    .top-count {
+      min-width: 92px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      text-align: center;
+      box-shadow: 0 8px 22px rgba(36, 54, 47, 0.06);
+    }
+
+    .top-count strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .top-count span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .controls,
+    .pool-area,
+    .results-area {
+      padding: 16px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 1.08rem;
+      line-height: 1.25;
+    }
+
+    .section-title .meta {
+      color: var(--muted);
+      font-size: 0.86rem;
+      white-space: nowrap;
+    }
+
+    .field-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label,
+    .field legend {
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .field legend {
+      padding: 0;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfb;
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(22, 127, 112, 0.12);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 132px;
+      gap: 12px;
+    }
+
+    fieldset {
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .segmented.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .choice input,
+    .element-choice input {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    .choice span,
+    .element-choice span {
+      display: grid;
+      place-items: center;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfb;
+      color: var(--muted);
+      font-size: 0.94rem;
+      font-weight: 700;
+      text-align: center;
+      transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    }
+
+    .choice input:checked + span,
+    .element-choice input:checked + span {
+      border-color: var(--primary);
+      background: #e8f4f1;
+      color: var(--primary-dark);
+    }
+
+    .elements {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-weight: 800;
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--line);
+      background: #fbfcfb;
+      color: var(--text);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .btn-danger {
+      border: 1px solid rgba(180, 60, 72, 0.25);
+      background: #fff4f3;
+      color: var(--danger);
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .status.error {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .pool-area {
+      margin-top: 16px;
+    }
+
+    .pool-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .pool-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .pool-group {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fbfcfb;
+    }
+
+    .pool-group[hidden] {
+      display: none;
+    }
+
+    .pool-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .pool-heading h3 {
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .pool-heading button {
+      min-height: 34px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: var(--surface-soft);
+      color: var(--primary-dark);
+      font-weight: 800;
+    }
+
+    .char-grid,
+    .selected-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .char-grid {
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+    }
+
+    .char-pill,
+    .selected-pill,
+    .element-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      min-height: 38px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .char-pill {
+      padding: 7px 10px;
+      transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .char-pill:hover {
+      transform: translateY(-1px);
+      border-color: currentColor;
+    }
+
+    .char-pill.selected {
+      color: #ffffff;
+      border-color: transparent;
+    }
+
+    .char-pill[data-element="metal"].selected,
+    .element-badge[data-element="metal"] {
+      background: var(--metal);
+      color: #ffffff;
+    }
+
+    .char-pill[data-element="wood"].selected,
+    .element-badge[data-element="wood"] {
+      background: var(--wood);
+      color: #ffffff;
+    }
+
+    .char-pill[data-element="water"].selected,
+    .element-badge[data-element="water"] {
+      background: var(--water);
+      color: #ffffff;
+    }
+
+    .char-pill[data-element="fire"].selected,
+    .element-badge[data-element="fire"] {
+      background: var(--fire);
+      color: #ffffff;
+    }
+
+    .char-pill[data-element="earth"].selected,
+    .element-badge[data-element="earth"] {
+      background: var(--earth);
+      color: #ffffff;
+    }
+
+    .selected-box {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+    }
+
+    .selected-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .selected-pill {
+      gap: 6px;
+      padding: 7px 9px;
+      background: #ffffff;
+    }
+
+    .selected-pill button {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: #eef2ef;
+      color: var(--muted);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .empty-note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .results-area {
+      position: sticky;
+      top: 14px;
+    }
+
+    .result-list,
+    .favorite-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .name-card {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfb;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .name-main {
+      overflow-wrap: anywhere;
+      font-size: 1.45rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .name-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .element-badge {
+      min-width: 28px;
+      min-height: 28px;
+      padding: 4px 7px;
+      border: 0;
+      font-size: 0.78rem;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .card-actions .btn {
+      min-height: 38px;
+      padding: 8px 10px;
+      font-size: 0.88rem;
+    }
+
+    .favorites {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      z-index: 20;
+      transform: translate(-50%, 18px);
+      max-width: calc(100% - 36px);
+      border-radius: var(--radius);
+      background: rgba(29, 42, 37, 0.94);
+      color: #ffffff;
+      padding: 11px 14px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .results-area {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 14px;
+      }
+
+      .topbar {
+        align-items: stretch;
+      }
+
+      .top-count {
+        min-width: 78px;
+      }
+
+      .controls,
+      .pool-area,
+      .results-area {
+        padding: 14px;
+      }
+
+      .form-grid,
+      .result-list,
+      .favorite-list {
+        grid-template-columns: 1fr;
+      }
+
+      .segmented.three {
+        grid-template-columns: 1fr;
+      }
+
+      .elements {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .actions .btn,
+      .pool-toolbar .btn {
+        flex: 1 1 150px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .topbar {
+        display: grid;
+      }
+
+      .elements {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <p class="brand-kicker">五行起名</p>
+        <h1>宝宝起名小帮手</h1>
+      </div>
+      <div class="top-count" aria-live="polite">
+        <strong id="favoriteCount">0</strong>
+        <span>已收藏</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <div>
+        <section class="surface controls" aria-labelledby="conditionTitle">
+          <div class="section-title">
+            <h2 id="conditionTitle">起名条件</h2>
+            <span class="meta" id="sourceMode">自动字池</span>
+          </div>
+
+          <form id="nameForm" class="field-stack">
+            <div class="form-grid">
+              <div class="field">
+                <label for="surname">姓氏</label>
+                <input id="surname" name="surname" type="text" maxlength="4" autocomplete="off" placeholder="如：王、欧阳">
+              </div>
+              <div class="field">
+                <label for="count">数量</label>
+                <input id="count" name="count" type="number" min="1" max="30" value="12" inputmode="numeric">
+              </div>
+            </div>
+
+            <fieldset class="field">
+              <legend>名字长度</legend>
+              <div class="segmented">
+                <label class="choice">
+                  <input type="radio" name="nameLength" value="1">
+                  <span>两个字</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="nameLength" value="2" checked>
+                  <span>三个字</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="field">
+              <legend>性别偏好</legend>
+              <div class="segmented three">
+                <label class="choice">
+                  <input type="radio" name="gender" value="boy">
+                  <span>男孩</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="gender" value="girl">
+                  <span>女孩</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="gender" value="any" checked>
+                  <span>不限</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="field">
+              <legend>五行属性</legend>
+              <div class="elements" id="elementChoices">
+                <label class="element-choice">
+                  <input type="checkbox" name="elements" value="metal" checked>
+                  <span>金</span>
+                </label>
+                <label class="element-choice">
+                  <input type="checkbox" name="elements" value="wood" checked>
+                  <span>木</span>
+                </label>
+                <label class="element-choice">
+                  <input type="checkbox" name="elements" value="water" checked>
+                  <span>水</span>
+                </label>
+                <label class="element-choice">
+                  <input type="checkbox" name="elements" value="fire" checked>
+                  <span>火</span>
+                </label>
+                <label class="element-choice">
+                  <input type="checkbox" name="elements" value="earth" checked>
+                  <span>土</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="actions">
+              <button class="btn btn-primary" type="submit">生成名字</button>
+              <button class="btn btn-ghost" type="button" id="rerollButton">再生成一批</button>
+            </div>
+            <div class="status" id="status" role="status" aria-live="polite"></div>
+          </form>
+        </section>
+
+        <section class="surface pool-area" aria-labelledby="poolTitle">
+          <div class="section-title">
+            <h2 id="poolTitle">五行字池</h2>
+            <span class="meta" id="poolCount">已选 0 字</span>
+          </div>
+
+          <div class="pool-toolbar">
+            <button class="btn btn-ghost" type="button" id="selectVisible">选择当前五行</button>
+            <button class="btn btn-danger" type="button" id="clearSelected">清空我的字池</button>
+          </div>
+
+          <div id="poolGrid" class="pool-grid"></div>
+
+          <div class="selected-box">
+            <div class="selected-head">
+              <span>我的字池</span>
+              <span id="customMode">未启用</span>
+            </div>
+            <div id="selectedGrid" class="selected-grid">
+              <span class="empty-note">未手选时使用上方五行完整字池</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="surface results-area" aria-labelledby="resultTitle">
+        <div class="section-title">
+          <h2 id="resultTitle">候选名字</h2>
+          <span class="meta" id="resultCount">0 个</span>
+        </div>
+        <div id="resultList" class="result-list">
+          <div class="empty-note">填写姓氏后生成候选名字</div>
+        </div>
+
+        <div class="favorites" id="favoritesWrap" hidden>
+          <div class="section-title">
+            <h2>收藏</h2>
+            <span class="meta" id="favoriteMeta">0 个</span>
+          </div>
+          <div id="favoriteList" class="favorite-list"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const elementLabels = {
+      metal: "金",
+      wood: "木",
+      water: "水",
+      fire: "火",
+      earth: "土"
+    };
+
+    const rawElementPools = {
+      metal: "钧铭钰锦锐铄铎铮铠镇鑫铖钦银铂锋铃铉镕锴钥铱镁锟铧锶锵镜鉴钊钗钏钒钕钜钛钺钿铁铆铌铨铫铬铸铺铻铼锃锆锈锌锏锜锠锣锥锭键锰锲锷锹锻锾镐镒镔镖镗镘镛镝镞镟镡镧镪镭镰" +
+        "钇针钉钋钌钍钎钐钓钔钙钚钞钟钡钢钣钤钩钮钨钫钬钭钲钳钴钵钷钹钼钽钾铀铅铇铈铊铋铍铐铑铒铕铗铙铚铛铜铝铞铟铢铣铤铥铦铩铪铯铰铲铳铴铵铷铹铽铿销锁锂锄锇锉锊锍锎锒锓锔锕锖锘错锚锛锡锢锤锧锨锩锫锬锱锳锸锼锽镀镂镄镅镆镉镌镏镑镓镚镠镢镤镥镦镨镩镫镬镯镱镲镳钻锯锗锝锞镃镈镊镍镎镙镣金釜銮鋆銎錾鍪鏖",
+      wood: "林森梓楠桐柏栩楷槿桦榆桓柠芮芊芷莉茉芯苒蕊蓁萱荣艺朵柯梧楚棠杉杏材村杞杨杭杰松枫枰柄柳栋栎栏树栖栗校根格桂桃桉桢桥梅梒梵棋棣棱植椿榕槐榛樊樾橙檀荟菁薇藤芙芳若茗" +
+        "芃芄芍芎芠芫芬芭花芸芹苏苇苓苔苗苙苡苣苻苾茁茂范茄茜茵茶茸茹茼荀荃草荆荇荔荙荚荞荠荡莎莘莞莹菀菅菇菡菱菲菽萃萄萌萍萧萨萩萸落葵蒂蒙蒲蒨蒴蓉蓓蓝蓬蔚蔓蔷蕙蕴蕾薄薏薰藏藜藿榭榴榉榜榠榧榷榻槁槊构椋椎椴椹楣楦楫楮楸楹榄榈竹竺竿笃笄笆笈笋笏笑笔笙笛笠笥符第笳笺筠筱筵筹简箐箫篇篁篆篱簇簪籍禾秀私秉秋科秒秧秩积秾稀程稔稚稷稹穗穆穰",
+      water: "沐泽涵清洛洋洲源澈汐沁淇淳澜沛渊泓浩滢潇雨雯霖露凝淼汶洵润溪永汀汇汉汝江池汤汩汪沂沃沈沅沣沦河治泫泰泳泷洁洄洒洺济浔浦海涔涛涟涣涤涧涪涯淮深添渝湘湉湛溯溶滋漪漫" +
+        "汕汜汛汲汾沙沄沆沇沔沫沭沮沱沾沼泠泡波泞泯泱泉洇洙洧洨洫洪洮洱洳浈浚浛浜浠浣浥涂涅消涉涌涓涴淅淞淙淦淯渌渍渚渠渡渤渥温渭港湃湍湎湖湾湿溢溱滂滔滟满滨漂演漠漩漾潆潍潘潜潮澄澎澔澧澳濂濡瀚瀛灏冰冶况冽净凇凌准凛霁霏霓雪霄霆震霞泗泙泚泜泞泠泺泾洌洎洑洒洗洙洵洺洽派洹流浙浞浟浡浥浦浨浪浮浴浯涞涠涡涢涴涸淄淅淞淠淥淦淧淬淮淯渚渝湫湲湙溟溥溦溧滉滦漱漓潞潢潭澍澹濯瀞",
+      fire: "炎煜熙烁炜焱晗昕晨旭昭晟曦晴暖煊煦昱炫煌灿灵炘燚映晓晔曜晖炯丹丽乐亭亮令仲伦伶佟俊俐倬兆光典冉冬南卓呈哲夏天宁宝尔庭彰德志念恬扬振政昊明易星春晋晏景智晶朗朔炅照" +
+        "灼炀炆炉炊炒炔炕炖炙炬炳炽烨烜烽焕焜焰煁煃煋煐煓煚煝煤煴熄熔熠熹燊燎燔燠燧燮燿爔烈烘烙烩烫烬热烯烱烶烺焉焌焓焘焙焚焯煅煇煟煨煲煳熀熇熏燃燋燐燚爝旻昀昂昆昇昌昶昉昴昵昺晁晃晄晅晊晢晤晧晪晫晬晱晰晷晸暄暇暐暑暠暢暧暮暱暻暾暿曈曙曚曛彤彧昳晞旰旱旷旺旸昃昄昈昔昙昜昝昞昤昪昫昬显昽晌晐晙晚晡晦晳晹晻晼晽晾暀暆暋暌暎暏暕暲暶暹曌曩",
+      earth: "坤垚城培墨安宇宥宸岚峰岳岩砚硕辰轩维亦予伊恩怡嫣婉玥瑛均圣垣一亿允又友叶右唯园圆境奎奥娅娴嫒容尹屹岐岗岑峥峦崇崎嵘巍延影忆悠意懿拥燕爱益磊祎禹羽翔誉远堃坦垠堇堂" +
+        "土圭圻坂坊坎坛坜坡坪坭垂型垒垓垦垲埃埕埔埙埜埠基堆堉堑堕堤堰塇塬塾墅墉墐墙增墀墁壕壤壹山屿岁岂岈岍岫岭岱岵岷峄峋峒峤峻崁崧崴嵋嵛嵩嵬嵯嵚巅石矶矾矿砜砥砺砾础硅硎硖硐硒硝硙确硼碇碌碍碑碗碧碟磐磬礁宛宜家寅寰玖玛玟玮环现玲玺玻珂珈珉珊珍珏珑珞珠珣珩珪班珺琅琇琉琛琢琦琪琬琰琳琴琼瑀瑁瑄瑕瑜瑞瑗瑙瑚瑾璇璋璟璞璨璧瓒田甸町画畋畔留畦番畴"
+    };
+
+    const elementPools = Object.fromEntries(
+      Object.entries(rawElementPools).map(([element, chars]) => [element, Array.from(new Set(Array.from(chars)))])
+    );
+
+    const genderPools = {
+      boy: ["钧", "铭", "锐", "铠", "镇", "铖", "锋", "鉴", "钊", "锴", "锷", "键", "泽", "源", "泓", "浩", "渊", "涛", "海", "深", "湛", "润", "森", "柏", "楷", "桓", "柯", "梧", "栋", "杰", "松", "樾", "煜", "旭", "晟", "炜", "曜", "晖", "炯", "昊", "明", "朗", "智", "宇", "宸", "轩", "岳", "硕", "辰", "坤", "岩", "峰", "峥", "巍", "翔"],
+      girl: ["钰", "锦", "铃", "钥", "铱", "镁", "钗", "钏", "芮", "芊", "芷", "茉", "芯", "苒", "蕊", "萱", "莉", "蓁", "艺", "朵", "荟", "菁", "薇", "涵", "汐", "沁", "滢", "雯", "露", "淇", "湉", "漪", "溪", "晴", "曦", "昕", "灵", "晗", "暖", "恬", "晶", "照", "岚", "怡", "嫣", "婉", "玥", "瑛", "伊", "恩", "娅", "娴", "宛", "羽"]
+    };
+
+    const storageKey = "baby-name-favorites-v1";
+    const selectedChars = new Map();
+    let favorites = readFavorites();
+    let lastOptions = null;
+    let toastTimer = 0;
+
+    const form = document.getElementById("nameForm");
+    const statusEl = document.getElementById("status");
+    const poolGrid = document.getElementById("poolGrid");
+    const selectedGrid = document.getElementById("selectedGrid");
+    const poolCount = document.getElementById("poolCount");
+    const customMode = document.getElementById("customMode");
+    const sourceMode = document.getElementById("sourceMode");
+    const resultList = document.getElementById("resultList");
+    const resultCount = document.getElementById("resultCount");
+    const favoriteList = document.getElementById("favoriteList");
+    const favoritesWrap = document.getElementById("favoritesWrap");
+    const favoriteMeta = document.getElementById("favoriteMeta");
+    const favoriteCount = document.getElementById("favoriteCount");
+    const toast = document.getElementById("toast");
+
+    function createElement(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) {
+        node.className = className;
+      }
+      if (text !== undefined) {
+        node.textContent = text;
+      }
+      return node;
+    }
+
+    function charKey(element, char) {
+      return `${element}:${char}`;
+    }
+
+    function getSelectedElements() {
+      return Array.from(document.querySelectorAll('input[name="elements"]:checked')).map((item) => item.value);
+    }
+
+    function getSelectedEntries() {
+      return Array.from(selectedChars.values());
+    }
+
+    function getEntryPool(elements, useCustom) {
+      if (useCustom) {
+        return getSelectedEntries();
+      }
+
+      return elements.flatMap((element) => {
+        return elementPools[element].map((char) => ({ char, element }));
+      });
+    }
+
+    function renderPoolGroups() {
+      poolGrid.textContent = "";
+      Object.entries(elementPools).forEach(([element, chars]) => {
+        const group = createElement("section", "pool-group");
+        group.dataset.element = element;
+
+        const heading = createElement("div", "pool-heading");
+        const title = createElement("h3", "", `${elementLabels[element]} · ${chars.length} 字`);
+        const selectButton = createElement("button", "", `全选${elementLabels[element]}`);
+        selectButton.type = "button";
+        selectButton.addEventListener("click", () => selectElementChars(element));
+        heading.append(title, selectButton);
+
+        const charGrid = createElement("div", "char-grid");
+        chars.forEach((char) => {
+          const button = createElement("button", "char-pill", char);
+          button.type = "button";
+          button.dataset.element = element;
+          button.dataset.char = char;
+          button.setAttribute("aria-pressed", "false");
+          button.addEventListener("click", () => toggleChar(element, char));
+          charGrid.append(button);
+        });
+
+        group.append(heading, charGrid);
+        poolGrid.append(group);
+      });
+
+      syncPoolVisibility();
+      renderSelectedChars();
+    }
+
+    function syncPoolVisibility() {
+      const activeElements = new Set(getSelectedElements());
+      document.querySelectorAll(".pool-group").forEach((group) => {
+        group.hidden = !activeElements.has(group.dataset.element);
+      });
+    }
+
+    function toggleChar(element, char) {
+      const key = charKey(element, char);
+      if (selectedChars.has(key)) {
+        selectedChars.delete(key);
+      } else {
+        selectedChars.set(key, { char, element });
+      }
+      renderSelectedChars();
+    }
+
+    function selectElementChars(element) {
+      elementPools[element].forEach((char) => {
+        selectedChars.set(charKey(element, char), { char, element });
+      });
+      renderSelectedChars();
+      showToast(`已选择${elementLabels[element]}属性字`);
+    }
+
+    function selectVisibleChars() {
+      const elements = getSelectedElements();
+      if (!elements.length) {
+        setStatus("请先选择至少一个五行属性", true);
+        return;
+      }
+
+      elements.forEach((element) => {
+        elementPools[element].forEach((char) => {
+          selectedChars.set(charKey(element, char), { char, element });
+        });
+      });
+      renderSelectedChars();
+      showToast("已选择当前五行字池");
+    }
+
+    function clearSelectedChars() {
+      selectedChars.clear();
+      renderSelectedChars();
+      showToast("已清空我的字池");
+    }
+
+    function renderSelectedChars() {
+      const entries = getSelectedEntries();
+      selectedGrid.textContent = "";
+
+      document.querySelectorAll(".char-pill").forEach((button) => {
+        const selected = selectedChars.has(charKey(button.dataset.element, button.dataset.char));
+        button.classList.toggle("selected", selected);
+        button.setAttribute("aria-pressed", String(selected));
+      });
+
+      if (!entries.length) {
+        selectedGrid.append(createElement("span", "empty-note", "未手选时使用上方五行完整字池"));
+      } else {
+        entries.forEach((entry) => {
+          const pill = createElement("span", "selected-pill");
+          const char = createElement("span", "", `${entry.char}·${elementLabels[entry.element]}`);
+          const remove = createElement("button", "", "×");
+          remove.type = "button";
+          remove.setAttribute("aria-label", `移除${entry.char}`);
+          remove.addEventListener("click", () => toggleChar(entry.element, entry.char));
+          pill.append(char, remove);
+          selectedGrid.append(pill);
+        });
+      }
+
+      const count = entries.length;
+      poolCount.textContent = `已选 ${count} 字`;
+      customMode.textContent = count ? "已启用" : "未启用";
+      sourceMode.textContent = count ? `我的字池 · ${count} 字` : "自动字池";
+    }
+
+    function readFormOptions() {
+      const surname = document.getElementById("surname").value.trim().replace(/\s+/g, "");
+      const countValue = Number(document.getElementById("count").value);
+      const count = Math.min(30, Math.max(1, Number.isFinite(countValue) ? countValue : 12));
+      const nameLength = Number(document.querySelector('input[name="nameLength"]:checked').value);
+      const gender = document.querySelector('input[name="gender"]:checked').value;
+      const elements = getSelectedElements();
+      const useCustomPool = selectedChars.size > 0;
+
+      return { surname, count, nameLength, gender, elements, useCustomPool };
+    }
+
+    function validateOptions(options) {
+      if (!options.surname) {
+        return "请先填写姓氏";
+      }
+
+      if (!options.useCustomPool && !options.elements.length) {
+        return "请至少选择一个五行属性";
+      }
+
+      const pool = getEntryPool(options.elements, options.useCustomPool);
+      const uniqueCharCount = new Set(pool.map((item) => item.char)).size;
+      if (uniqueCharCount < options.nameLength) {
+        return options.nameLength === 2 ? "双名至少需要 2 个可用字" : "请至少选择 1 个可用字";
+      }
+
+      return "";
+    }
+
+    function generateNames(options) {
+      const pool = getEntryPool(options.elements, options.useCustomPool);
+      const seen = new Set();
+      const names = [];
+      let attempts = 0;
+      const maxAttempts = options.count * 120;
+
+      while (names.length < options.count && attempts < maxAttempts) {
+        attempts += 1;
+        const picked = pickNameEntries(pool, options.nameLength, options.gender);
+        if (picked.length !== options.nameLength) {
+          break;
+        }
+
+        const givenName = picked.map((item) => item.char).join("");
+        const fullName = `${options.surname}${givenName}`;
+        if (seen.has(fullName)) {
+          continue;
+        }
+
+        seen.add(fullName);
+        names.push({
+          fullName,
+          givenName,
+          chars: picked,
+          source: options.useCustomPool ? "我的字池" : "自动字池"
+        });
+      }
+
+      return names;
+    }
+
+    function pickNameEntries(pool, length, gender) {
+      const chosen = [];
+      const usedChars = new Set();
+      const sequence = buildElementSequence(pool, length);
+
+      for (let index = 0; index < length; index += 1) {
+        const element = sequence[index];
+        let candidates = pool.filter((item) => item.element === element && !usedChars.has(item.char));
+        if (!candidates.length) {
+          candidates = pool.filter((item) => !usedChars.has(item.char));
+        }
+        const picked = pickWeighted(candidates, gender);
+        if (!picked) {
+          return chosen;
+        }
+        chosen.push(picked);
+        usedChars.add(picked.char);
+      }
+
+      return chosen;
+    }
+
+    function buildElementSequence(pool, length) {
+      const elements = Array.from(new Set(pool.map((item) => item.element)));
+      if (!elements.length) {
+        return [];
+      }
+
+      if (length === 1 || elements.length === 1) {
+        return Array.from({ length }, () => randomItem(elements));
+      }
+
+      return shuffle(elements).slice(0, length);
+    }
+
+    function pickWeighted(candidates, gender) {
+      if (!candidates.length) {
+        return null;
+      }
+
+      const preferred = new Set(genderPools[gender] || []);
+      const weighted = [];
+      candidates.forEach((item) => {
+        const weight = preferred.has(item.char) ? 4 : 1;
+        for (let index = 0; index < weight; index += 1) {
+          weighted.push(item);
+        }
+      });
+
+      return randomItem(weighted);
+    }
+
+    function shuffle(items) {
+      const copy = items.slice();
+      for (let index = copy.length - 1; index > 0; index -= 1) {
+        const next = Math.floor(Math.random() * (index + 1));
+        [copy[index], copy[next]] = [copy[next], copy[index]];
+      }
+      return copy;
+    }
+
+    function randomItem(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function runGenerate() {
+      const options = readFormOptions();
+      const error = validateOptions(options);
+      if (error) {
+        setStatus(error, true);
+        return;
+      }
+
+      document.getElementById("count").value = options.count;
+      lastOptions = options;
+      const names = generateNames(options);
+      renderResults(names);
+      setStatus(`${options.useCustomPool ? "已按我的字池" : "已按五行字池"}生成 ${names.length} 个名字`, false);
+    }
+
+    function reroll() {
+      if (lastOptions) {
+        const options = readFormOptions();
+        const error = validateOptions(options);
+        if (error) {
+          setStatus(error, true);
+          return;
+        }
+        lastOptions = options;
+        renderResults(generateNames(options));
+        setStatus("已换一批候选名字", false);
+        return;
+      }
+      runGenerate();
+    }
+
+    function renderResults(names) {
+      resultList.textContent = "";
+      resultCount.textContent = `${names.length} 个`;
+
+      if (!names.length) {
+        resultList.append(createElement("div", "empty-note", "当前条件下没有生成结果"));
+        return;
+      }
+
+      names.forEach((name) => {
+        resultList.append(createNameCard(name, false));
+      });
+    }
+
+    function createNameCard(name, isFavorite) {
+      const card = createElement("article", "name-card");
+      const main = createElement("div", "name-main", name.fullName);
+      const meta = createElement("div", "name-meta");
+      const source = createElement("span", "", name.source);
+      meta.append(source);
+
+      name.chars.forEach((item) => {
+        const badge = createElement("span", "element-badge", `${item.char}·${elementLabels[item.element]}`);
+        badge.dataset.element = item.element;
+        meta.append(badge);
+      });
+
+      const actions = createElement("div", "card-actions");
+      const copy = createElement("button", "btn btn-ghost", "复制");
+      copy.type = "button";
+      copy.addEventListener("click", () => copyName(name.fullName));
+
+      const second = isFavorite
+        ? createElement("button", "btn btn-danger", "移除")
+        : createElement("button", "btn btn-primary", "收藏");
+      second.type = "button";
+      second.addEventListener("click", () => {
+        if (isFavorite) {
+          removeFavorite(name.fullName);
+        } else {
+          addFavorite(name);
+        }
+      });
+
+      actions.append(copy, second);
+      card.append(main, meta, actions);
+      return card;
+    }
+
+    function addFavorite(name) {
+      if (favorites.some((item) => item.fullName === name.fullName)) {
+        showToast("这个名字已经收藏过");
+        return;
+      }
+      favorites.unshift(name);
+      favorites = favorites.slice(0, 60);
+      saveFavorites();
+      renderFavorites();
+      showToast("已收藏");
+    }
+
+    function removeFavorite(fullName) {
+      favorites = favorites.filter((item) => item.fullName !== fullName);
+      saveFavorites();
+      renderFavorites();
+      showToast("已移除收藏");
+    }
+
+    function renderFavorites() {
+      favoriteList.textContent = "";
+      favoriteCount.textContent = String(favorites.length);
+      favoriteMeta.textContent = `${favorites.length} 个`;
+      favoritesWrap.hidden = favorites.length === 0;
+
+      favorites.forEach((name) => {
+        favoriteList.append(createNameCard(name, true));
+      });
+    }
+
+    function readFavorites() {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        return raw ? JSON.parse(raw) : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveFavorites() {
+      localStorage.setItem(storageKey, JSON.stringify(favorites));
+    }
+
+    function copyName(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("已复制姓名");
+        }).catch(() => fallbackCopy(text));
+        return;
+      }
+      fallbackCopy(text);
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.append(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        showToast("已复制姓名");
+      } catch (error) {
+        showToast("复制失败，请手动选择");
+      } finally {
+        textarea.remove();
+      }
+    }
+
+    function setStatus(message, isError) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle("error", Boolean(isError));
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      runGenerate();
+    });
+
+    document.getElementById("rerollButton").addEventListener("click", reroll);
+    document.getElementById("selectVisible").addEventListener("click", selectVisibleChars);
+    document.getElementById("clearSelected").addEventListener("click", clearSelectedChars);
+    document.querySelectorAll('input[name="elements"]').forEach((input) => {
+      input.addEventListener("change", () => {
+        syncPoolVisibility();
+      });
+    });
+
+    renderPoolGroups();
+    renderFavorites();
+  </script>
+</body>
+</html>
